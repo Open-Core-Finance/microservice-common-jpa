@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.RequestMethod;
 import tech.corefinance.common.jpa.model.Permission;
 import tech.corefinance.common.repository.PermissionRepository;
+import tech.corefinance.common.service.SimpleSearchSupport;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +19,8 @@ import java.util.Optional;
  * JPA repository for Permission.
  */
 @Repository
-public interface JpaPermissionRepository extends JpaRepository<Permission, String>, PermissionRepository<Permission> {
+public interface JpaPermissionRepository extends JpaRepository<Permission, String>, PermissionRepository<Permission>,
+        SimpleSearchSupport<Permission> {
 
     Optional<Permission> findFirstByRoleIdAndResourceTypeAndActionAndUrlAndRequestMethod(String roleId, String resourceType, String action, String url, RequestMethod requestMethod);
 
@@ -42,4 +44,22 @@ public interface JpaPermissionRepository extends JpaRepository<Permission, Strin
     @Query(searchByQuery)
     Page<Permission> searchBy(@Param("search") String searchText, Pageable pageable);
 
+    /**
+     * Search Permission by text.
+     * @param searchText Search text.
+     * @param sort Sort info
+     * @return List Permissions matched search info.
+     */
+    @Query(searchByQuery)
+    List<Permission> searchBy(@Param("search") String searchText, Sort sort);
+
+    @Override
+    default Page<Permission> searchByTextAndPage(String searchText, Pageable pageable) {
+        return searchBy(searchText, pageable);
+    }
+
+    @Override
+    default List<Permission> searchByTextAndSort(String searchText, Sort sort) {
+        return searchBy(searchText, sort);
+    }
 }
