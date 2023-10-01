@@ -1,11 +1,14 @@
 package tech.corefinance.common.jpa.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import tech.corefinance.common.model.AbstractInternalServiceConfig;
+
+import java.time.ZonedDateTime;
 
 /**
  * Internal API config for permission module.
@@ -18,7 +21,32 @@ public class InternalServiceConfig extends AbstractInternalServiceConfig {
 
     @Override
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     public String getId() {
         return super.getId();
+    }
+
+    @NotNull
+    @Override
+    public String getServiceName() {
+        return super.getServiceName();
+    }
+
+    @Override
+    @NotNull
+    public String getApiKey() {
+        return super.getApiKey();
+    }
+
+    @Override
+    @LastModifiedDate
+    public ZonedDateTime getLastModifiedDate() {
+        return super.getLastModifiedDate();
+    }
+
+    @CreatedDate
+    @Override
+    public ZonedDateTime getCreatedDate() {
+        return super.getCreatedDate();
     }
 }

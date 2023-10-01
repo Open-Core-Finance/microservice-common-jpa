@@ -1,5 +1,7 @@
 package tech.corefinance.common.jpa.model;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,6 +25,7 @@ public class ResourceAction extends AbstractResourceAction {
 
     @Override
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     public String getId() {
         return super.getId();
     }
