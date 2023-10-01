@@ -14,6 +14,9 @@ import tech.corefinance.common.repository.PermissionRepository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * JPA repository for Permission.
+ */
 @Repository
 public interface JpaPermissionRepository extends JpaRepository<Permission, String>, PermissionRepository<Permission> {
 
@@ -21,13 +24,22 @@ public interface JpaPermissionRepository extends JpaRepository<Permission, Strin
 
     List<Permission> findAllByRoleIdAndResourceType(String roleId, String resourceType, Sort sort);
 
+    /**
+     * Search by SQL query.
+     */
     String searchByQuery = """
         From Permission where lower(roleId) like lower(:search) or lower(resourceType) like lower(:search)
         or lower(url) like lower(:search) or lower(action) like lower(:search) or lower(control) like lower(:search)
         or lower(requestMethod) like lower(:search)
     """;
 
+    /**
+     * Search Permission by text.
+     * @param searchText Search text.
+     * @param pageable Page info
+     * @return List Permissions matched search info.
+     */
     @Query(searchByQuery)
-    Page<Permission> searchBy(@Param("search") String searchText, Pageable pageRequest);
+    Page<Permission> searchBy(@Param("search") String searchText, Pageable pageable);
 
 }
