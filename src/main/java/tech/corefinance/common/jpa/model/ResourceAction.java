@@ -1,9 +1,7 @@
 package tech.corefinance.common.jpa.model;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.NoArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMethod;
 import tech.corefinance.common.model.AbstractResourceAction;
 
@@ -11,6 +9,8 @@ import tech.corefinance.common.model.AbstractResourceAction;
  * Resource action config for permission module.
  */
 @Table(name = "resource_action")
+@Entity
+@NoArgsConstructor
 public class ResourceAction extends AbstractResourceAction {
     /**
      * Constructor.
@@ -28,5 +28,25 @@ public class ResourceAction extends AbstractResourceAction {
     @GeneratedValue(strategy = GenerationType.UUID)
     public String getId() {
         return super.getId();
+    }
+
+    @Override
+    public String getResourceType() {
+        return super.getResourceType();
+    }
+
+    @Override
+    public String getAction() {
+        return super.getAction();
+    }
+
+    @Override
+    public String getUrl() {
+        return super.getUrl();
+    }
+
+    @Override
+    public RequestMethod getRequestMethod() {
+        return super.getRequestMethod();
     }
 }

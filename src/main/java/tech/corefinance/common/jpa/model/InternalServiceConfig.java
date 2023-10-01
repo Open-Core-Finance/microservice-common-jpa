@@ -26,8 +26,8 @@ public class InternalServiceConfig extends AbstractInternalServiceConfig {
         return super.getId();
     }
 
-    @NotNull
     @Override
+    @NotNull
     public String getServiceName() {
         return super.getServiceName();
     }
@@ -44,9 +44,14 @@ public class InternalServiceConfig extends AbstractInternalServiceConfig {
         return super.getLastModifiedDate();
     }
 
-    @CreatedDate
     @Override
+    @CreatedDate
     public ZonedDateTime getCreatedDate() {
         return super.getCreatedDate();
+    }
+
+    @Override
+    public boolean isActivated() {
+        return super.isActivated();
     }
 }

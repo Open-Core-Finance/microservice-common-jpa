@@ -2,6 +2,7 @@ package tech.corefinance.common.jpa.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.web.bind.annotation.RequestMethod;
 import tech.corefinance.common.enums.AccessControl;
 import tech.corefinance.common.model.AbstractPermission;
 
@@ -38,8 +39,19 @@ public class Permission extends AbstractPermission {
 
     @Override
     @NotNull
+    @Enumerated(EnumType.STRING)
     public AccessControl getControl() {
         return super.getControl();
     }
 
+    @Override
+    public String getUrl() {
+        return super.getUrl();
+    }
+
+    @Override
+    @Enumerated(EnumType.STRING)
+    public RequestMethod getRequestMethod() {
+        return super.getRequestMethod();
+    }
 }

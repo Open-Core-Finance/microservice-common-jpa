@@ -143,11 +143,14 @@ jacocoTestReport {
     }
 }
 
+javadoc {
+    exclude("**/InternalServiceConfig#InternalServiceConfig")
+}
+
 task javadocJar (type :Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
     archiveClassifier='javadoc'
     description='Creates a Javadoc Jar'
-    exclude "**/InternalServiceConfig#InternalServiceConfig"
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
