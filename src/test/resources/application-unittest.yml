@@ -12,7 +12,30 @@ spring:
       write-durations-as-timestamps: true
       write-enums-using-to-string: false
       FAIL_ON_EMPTY_BEANS: false
-
+  datasource:
+    url: jdbc:postgresql://localhost:5432/coffee_shop_order_test
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-test-query: SELECT 1
+      maximum-pool-size: 10 # Adjust as needed
+      minimum-idle: 2
+      idle-timeout: 30000
+      pool-name: order_pool
+  jpa:
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: none
+      show-sql: true
+      generate-ddl: false
+  # Liquibase settings
+  liquibase:
+    change-log: classpath:db/changelog/sql-changelog.xml
+    drop-first: false
+    enabled: true
+    contexts: development
 tech:
   corefinance:
     security:
