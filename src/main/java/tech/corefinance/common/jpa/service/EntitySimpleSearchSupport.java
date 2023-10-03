@@ -19,6 +19,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 
+/**
+ * Simple search support for all JPA entities.
+ */
 @Repository
 @Slf4j
 public class EntitySimpleSearchSupport implements SimpleSearchSupport<GenericModel<?>> {
@@ -27,6 +30,10 @@ public class EntitySimpleSearchSupport implements SimpleSearchSupport<GenericMod
     @Autowired
     private EntityManager entityManager;
 
+    /**
+     * Constructor will query all mapped entity and create list attribute that can we search by string.
+     * @param entityManager JPA EntityManager object.
+     */
     public EntitySimpleSearchSupport(@Autowired EntityManager entityManager) {
         supportedAttributes = new HashMap<>();
         var entitiesTypes = entityManager.getMetamodel().getEntities();
@@ -64,13 +71,13 @@ public class EntitySimpleSearchSupport implements SimpleSearchSupport<GenericMod
         sql = appendSortToSql(sql, pageable.getSort());
         log.debug("Search SQL [{}]", sql);
         var countQuery = entityManager.createQuery(countSql, Long.class);
-        countQuery.setParameter("searchText", searchText);
+        countQuery.setParameter("searchText", "%" + searchText + "%");
         long count = (Long) countQuery.getSingleResult();
 
         var query = entityManager.createQuery(sql, clzz);
         query.setFirstResult((int) pageable.getOffset());
         query.setMaxResults(pageable.getPageSize());
-        query.setParameter("searchText", searchText);
+        query.setParameter("searchText", "%" + searchText + "%");
         var list = (List<GenericModel<?>>) query.getResultList();
         return new PageImpl<>(list, pageable, count);
     }
@@ -82,7 +89,7 @@ public class EntitySimpleSearchSupport implements SimpleSearchSupport<GenericMod
         sql = appendSortToSql(sql, sort);
         log.debug("Search SQL [{}]", sql);
         var query = entityManager.createQuery(sql, clzz);
-        query.setParameter("searchText", searchText);
+        query.setParameter("searchText", "%" + searchText + "%");
         return (List<GenericModel<?>>) query.getResultList();
     }
 
