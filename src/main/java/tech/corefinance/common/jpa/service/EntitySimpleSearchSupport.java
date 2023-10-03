@@ -8,6 +8,7 @@ import jakarta.persistence.metamodel.SingularAttribute;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
@@ -23,6 +24,8 @@ import java.util.*;
 public class EntitySimpleSearchSupport implements SimpleSearchSupport<GenericModel<?>> {
 
     private Map<EntityType<?>, Set<SingularAttribute<?, ?>>> supportedAttributes;
+    @Autowired
+    private EntityManager entityManager;
 
     public EntitySimpleSearchSupport(@Autowired EntityManager entityManager) {
         supportedAttributes = new HashMap<>();
@@ -31,16 +34,18 @@ public class EntitySimpleSearchSupport implements SimpleSearchSupport<GenericMod
             Class<?> entityClass = et.getJavaType();
             log.debug("Scanning attribute of entity class [{}] for SimpleSearchSupport...", entityClass.getName());
             Set<SingularAttribute<?, ?>> attributes = (Set<SingularAttribute<?, ?>>) et.getSingularAttributes();
-            Set<SingularAttribute<?, ?>> supportedAttributes = new HashSet<>();
+            Set<SingularAttribute<?, ?>> attributesSet = new HashSet<>();
             for (SingularAttribute<?, ?> attribute : attributes) {
                 var attributeType = attribute.getJavaType();
                 if (attributeType.isEnum() && isEnumSupportSearch(entityClass, attribute)) {
-                    supportedAttributes.add(attribute);
+                    attributesSet.add(attribute);
                 } else if (String.class.isAssignableFrom(attributeType)) {
-                    supportedAttributes.add(attribute);
+                    attributesSet.add(attribute);
                 }
             }
-            this.supportedAttributes.put(et, supportedAttributes);
+            if (!attributesSet.isEmpty()) {
+                this.supportedAttributes.put(et, attributesSet);
+            }
         });
     }
 
@@ -53,13 +58,32 @@ public class EntitySimpleSearchSupport implements SimpleSearchSupport<GenericMod
     @Override
     public Page<GenericModel<?>> searchByTextAndPage(Class<? extends GenericModel<?>> clzz, String searchText,
                                                      Pageable pageable) {
-        return null;
+        var sql = buildSearchSql(clzz);
+        var countSql = "SELECT count(o) " + sql;
+        log.debug("Count SQL [{}]", countSql);
+        sql = appendSortToSql(sql, pageable.getSort());
+        log.debug("Search SQL [{}]", sql);
+        var countQuery = entityManager.createQuery(countSql, Long.class);
+        countQuery.setParameter("searchText", searchText);
+        long count = (Long) countQuery.getSingleResult();
+
+        var query = entityManager.createQuery(sql, clzz);
+        query.setFirstResult((int) pageable.getOffset());
+        query.setMaxResults(pageable.getPageSize());
+        query.setParameter("searchText", searchText);
+        var list = (List<GenericModel<?>>) query.getResultList();
+        return new PageImpl<>(list, pageable, count);
     }
 
     @Override
     public List<GenericModel<?>> searchByTextAndSort(Class<? extends GenericModel<?>> clzz, String searchText,
                                                      Sort sort) {
-        return null;
+        var sql = buildSearchSql(clzz);
+        sql = appendSortToSql(sql, sort);
+        log.debug("Search SQL [{}]", sql);
+        var query = entityManager.createQuery(sql, clzz);
+        query.setParameter("searchText", searchText);
+        return (List<GenericModel<?>>) query.getResultList();
     }
 
     private boolean isEnumSupportSearch(Class<?> entityClass, SingularAttribute<?, ?> attribute) {
@@ -75,7 +99,8 @@ public class EntitySimpleSearchSupport implements SimpleSearchSupport<GenericMod
             if (getterMethod.isAnnotationPresent(Enumerated.class)) {
                 Enumerated enumeratedAnnotation = getterMethod.getAnnotation(Enumerated.class);
                 if (enumeratedAnnotation.value() == EnumType.STRING) {
-                    log.debug("Method [{}] of class [{}] has annotation Enumerated with EnumType.STRING! This field support search!",
+                    log.debug(
+                            "Method [{}] of class [{}] has annotation Enumerated with EnumType.STRING! This field support search!",
                             getterMethod.getName(), entityClass.getName());
                     return true;
                 }
@@ -86,8 +111,9 @@ public class EntitySimpleSearchSupport implements SimpleSearchSupport<GenericMod
                 if (field.isAnnotationPresent(Enumerated.class)) {
                     Enumerated enumeratedAnnotation = field.getAnnotation(Enumerated.class);
                     if (enumeratedAnnotation.value() == EnumType.STRING) {
-                        log.debug("Field [{}] of class [{}] has annotation Enumerated with EnumType.STRING! This field support search!",
-                                field.getName(), entityClass.getName());
+                        log.debug(
+                                "Field [{}] of class [{}] has annotation Enumerated with EnumType.STRING!" +
+                                        "This field support search!", field.getName(), entityClass.getName());
                         return true;
                     }
                 }
@@ -98,5 +124,42 @@ public class EntitySimpleSearchSupport implements SimpleSearchSupport<GenericMod
             log.error("Error scanning field [{}] from class [{}]", attributeName, entityClass.getName(), e);
         }
         return false;
+    }
+
+    private String buildSearchSql(Class<?> clzz) {
+        StringBuilder sqlBuilder = new StringBuilder("FROM ").append(clzz.getSimpleName()).append(" o where ");
+        var optional =
+                supportedAttributes.entrySet().stream().filter(et -> et.getKey().getJavaType().isAssignableFrom(clzz))
+                        .findFirst();
+        var et = optional.get();
+
+        var attributes = et.getValue();
+        int index = 0;
+        for (var a : attributes) {
+            if (index > 0) {
+                sqlBuilder.append(" OR ");
+            }
+            sqlBuilder.append("lower(").append(a.getName()).append(") like lower(:searchText)");
+            index++;
+        }
+        return sqlBuilder.toString();
+    }
+
+    private String appendSortToSql(String sql, Sort sort) {
+        StringBuilder sqlBuilder = new StringBuilder(sql);
+        if (sort != null && sort.isSorted()) {
+            sqlBuilder.append(" ORDER BY ");
+            boolean firstSort = true;
+            for (Sort.Order order : sort) {
+                if (!firstSort) {
+                    sqlBuilder.append(",");
+                } else {
+                    sqlBuilder.append(" ");
+                }
+                sqlBuilder.append(order.getProperty()).append(" ").append(order.getDirection());
+                firstSort = false;
+            }
+        }
+        return sqlBuilder.toString();
     }
 }

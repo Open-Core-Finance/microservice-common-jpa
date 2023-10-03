@@ -13,9 +13,9 @@ spring:
       write-enums-using-to-string: false
       FAIL_ON_EMPTY_BEANS: false
   datasource:
-    url: jdbc:postgresql://localhost:5432/coffee_shop_order_test
-    username: postgres
-    password: postgres
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
       connection-test-query: SELECT 1
@@ -27,7 +27,7 @@ spring:
     properties:
       hibernate:
         hbm2ddl:
-          auto: none
+          auto: update
       show-sql: true
       generate-ddl: false
   # Liquibase settings
@@ -48,7 +48,7 @@ tech:
           common: true
           cached: false
       public-key: classpath:public_key.der
-      private-key: classpath:private_key.der
+      private-key:
       no-authen-urls:
         - /
         - /void
