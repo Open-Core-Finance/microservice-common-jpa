@@ -7,6 +7,7 @@ import jakarta.persistence.metamodel.EntityType;
 import jakarta.persistence.metamodel.SingularAttribute;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,8 @@ import java.util.*;
  */
 @Repository
 @Slf4j
+@ConditionalOnProperty(prefix = "tech.corefinance.common.enabled", name = "default-simple-search", havingValue = "true",
+    matchIfMissing = true)
 public class EntitySimpleSearchSupport implements SimpleSearchSupport<GenericModel<?>> {
 
     private Map<EntityType<?>, Set<SingularAttribute<?, ?>>> supportedAttributes;
