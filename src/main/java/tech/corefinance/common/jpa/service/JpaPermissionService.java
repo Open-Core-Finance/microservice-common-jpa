@@ -2,13 +2,15 @@ package tech.corefinance.common.jpa.service;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMethod;
-import tech.corefinance.common.jpa.model.InternalServiceConfig;
 import tech.corefinance.common.jpa.model.Permission;
 import tech.corefinance.common.jpa.model.ResourceAction;
-import tech.corefinance.common.service.AbstractPermissionService;
+import tech.corefinance.common.jpa.repository.JpaPermissionRepository;
+import tech.corefinance.common.repository.PermissionRepository;
+import tech.corefinance.common.service.PermissionService;
 
 /**
  * JPA permission service.
@@ -16,7 +18,15 @@ import tech.corefinance.common.service.AbstractPermissionService;
 @Service
 @Transactional
 @Getter
-public class JpaPermissionService extends AbstractPermissionService<Permission, InternalServiceConfig, ResourceAction> {
+public class JpaPermissionService implements PermissionService<Permission, ResourceAction> {
+
+    @Autowired
+    private JpaPermissionRepository permissionRepository;
+
+    @Override
+    public PermissionRepository<Permission> getRepository() {
+        return permissionRepository;
+    }
 
     /**
      * Create Permission.

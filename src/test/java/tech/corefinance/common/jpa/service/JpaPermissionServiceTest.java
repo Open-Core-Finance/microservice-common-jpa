@@ -3,7 +3,6 @@ package tech.corefinance.common.jpa.service;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Sort;
@@ -14,8 +13,9 @@ import org.testcontainers.utility.DockerImageName;
 import tech.corefinance.common.jpa.test.support.TestCommonApplication;
 import tech.corefinance.common.service.PermissionService;
 
-import java.util.LinkedList;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Testcontainers
 @SpringBootTest(classes = TestCommonApplication.class)
@@ -29,7 +29,7 @@ public class JpaPermissionServiceTest {
                     .withPassword("testpassword");
 
     @Autowired
-    private PermissionService<?,?,?> permissionService;
+    private PermissionService<?,?> permissionService;
 
     @BeforeAll
     public static void setUp() {

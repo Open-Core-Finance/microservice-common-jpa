@@ -44,6 +44,7 @@ public class EntitySimpleSearchSupport implements SimpleSearchSupport<GenericMod
             Class<?> entityClass = et.getJavaType();
             log.debug("Scanning attribute of entity class [{}] for SimpleSearchSupport...", entityClass.getName());
             Set<SingularAttribute<?, ?>> attributes = (Set<SingularAttribute<?, ?>>) et.getSingularAttributes();
+            log.debug("Attributes {}", attributes);
             Set<SingularAttribute<?, ?>> attributesSet = new HashSet<>();
             for (SingularAttribute<?, ?> attribute : attributes) {
                 var attributeType = attribute.getJavaType();
@@ -54,6 +55,7 @@ public class EntitySimpleSearchSupport implements SimpleSearchSupport<GenericMod
                 }
             }
             if (!attributesSet.isEmpty()) {
+                log.debug("Entity [{}] enabled search for {}", entityClass.getName(), attributesSet);
                 this.supportedAttributes.put(et, attributesSet);
             }
         });
@@ -75,7 +77,7 @@ public class EntitySimpleSearchSupport implements SimpleSearchSupport<GenericMod
         log.debug("Search SQL [{}]", sql);
         var countQuery = entityManager.createQuery(countSql, Long.class);
         countQuery.setParameter("searchText", "%" + searchText + "%");
-        long count = (Long) countQuery.getSingleResult();
+        long count = countQuery.getSingleResult();
 
         var query = entityManager.createQuery(sql, clzz);
         query.setFirstResult((int) pageable.getOffset());
