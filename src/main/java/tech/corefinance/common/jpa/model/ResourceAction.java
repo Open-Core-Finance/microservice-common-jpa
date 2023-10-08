@@ -46,6 +46,7 @@ public class ResourceAction extends AbstractResourceAction {
     }
 
     @Override
+    @Enumerated(EnumType.STRING)
     public RequestMethod getRequestMethod() {
         return super.getRequestMethod();
     }
