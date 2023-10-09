@@ -22,7 +22,7 @@ spring:
       maximum-pool-size: 10 # Adjust as needed
       minimum-idle: 2
       idle-timeout: 30000
-      pool-name: order_pool
+      # pool-name: order_pool
   jpa:
     properties:
       hibernate:
