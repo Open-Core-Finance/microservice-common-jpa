@@ -29,7 +29,7 @@ public class JpaPermissionServiceTest {
                     .withPassword("testpassword");
 
     @Autowired
-    private PermissionService<?,?> permissionService;
+    private PermissionService permissionService;
 
     @BeforeAll
     public static void setUp() {
