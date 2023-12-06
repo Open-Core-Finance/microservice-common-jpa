@@ -61,6 +61,14 @@ tech:
         tenant: true
         default-simple-search: true
       default-response-charset: utf-8
+    schema-tenancy:
+      mode: postgresql
+      ignore-schemas:
+        - public
+        - test_schema
+      enabled: true
+      schema-prefix: tenant_
+      default-schema: public
     log:
       enabled:
         services: true
@@ -93,16 +101,6 @@ tech:
     encryption:
       plain: test
       encoded: ENC(O5MFWIMMOz+V3iItOVY60g==)
-    initial:
-      name-separator: _
-      version-separator: .
-      data-regex:
-        permission:
-          file-name-regex: classpath:initial/*permissions*.json
-          replace-if-existed: true
-        internal-api:
-          file-name-regex: classpath:initial/*internal_api*.json
-          replace-if-existed: true
 export:
   format:
     date: yyyy/MM/dd
